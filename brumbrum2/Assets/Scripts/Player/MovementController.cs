@@ -4,16 +4,24 @@ using UnityEngine;
 
 
 [RequireComponent(typeof(PhysicsController))]
+[RequireComponent(typeof(AnimationController))]
 public class MovementController : MonoBehaviour {
 
     PhysicsController psC;
+    AnimationController animationController;
     Vector3 direction = new Vector3(0 , 0 , 0);
-    Vector3 worldDirection = new Vector3(0, 0, 0);
-    float rotation = 30;
-    float facing = 0;
-    float tilt = 10;
+    public Vector3 gravity = new Vector3(0, 0, 0);
 
-    Vector3 gravityDirection = new Vector3(0,-1,0);     //angle from car
+    public float rotation = 0;
+    public float rotationAccel;
+    float rotationDecel = 100f;
+    float angleDifferenceModifier = 15;
+    public float targetRotation;
+    float facing = 0;
+    float tilt = 0;
+    
+    [HideInInspector]
+    public Vector3 gravityDirection;     //angle from car
     float gravityStrength = 80;
     Vector3 maxGravitySpeed = new Vector3(100,100,100);
     
@@ -24,37 +32,64 @@ public class MovementController : MonoBehaviour {
     bool gravityEnabled = true;
 
     private void Start() {
+        gravityDirection = new Vector3(0, -0.5f, 1);
         psC = this.GetComponent<PhysicsController>();
+        animationController = this.GetComponent<AnimationController>();
     }
 
 
     private void Update() {
         ApplyGravity();
-        
-        
-        psC.Move(direction * Time.deltaTime ,rotation, facing, tilt, worldDirection * Time.deltaTime);
+        CalculateRotation();
+        //rotation += 50 * Time.deltaTime;
+        //facing += 80 * Time.deltaTime;
+
+        Finish();
     }
-
-
 
     void ApplyGravity() {
         if (gravityEnabled) {
-            worldDirection += gravityDirection * gravityStrength * Time.deltaTime;
-            if (Mathf.Abs(worldDirection.x) > maxGravitySpeed.x ) {
-                Mathf.Clamp(worldDirection.x, -maxGravitySpeed.x, maxGravitySpeed.x);
+            gravity += gravityDirection * gravityStrength * Time.deltaTime;
+            if (Mathf.Abs(gravity.x) > maxGravitySpeed.x ) {
+                Mathf.Clamp(gravity.x, -maxGravitySpeed.x, maxGravitySpeed.x);
             }
-            if (Mathf.Abs(worldDirection.y) > maxGravitySpeed.y) {
-                Mathf.Clamp(worldDirection.y, -maxGravitySpeed.y, maxGravitySpeed.y);
+            if (Mathf.Abs(gravity.y) > maxGravitySpeed.y) {
+                Mathf.Clamp(gravity.y, -maxGravitySpeed.y, maxGravitySpeed.y);
             }
-            if (Mathf.Abs(worldDirection.z) > maxGravitySpeed.z) {
-                Mathf.Clamp(worldDirection.z, -maxGravitySpeed.z, maxGravitySpeed.z);
+            if (Mathf.Abs(gravity.z) > maxGravitySpeed.z) {
+                Mathf.Clamp(gravity.z, -maxGravitySpeed.z, maxGravitySpeed.z);
             }
         }
     }
 
+    void CalculateRotation() {
+        if (!psC.isGrounded) {
+            rotationAccel += animationController.angleDifference * angleDifferenceModifier * Time.deltaTime;
+            rotation += rotationAccel * Time.deltaTime;
+            if (rotationAccel > 0) {
+                rotationAccel -= (rotationDecel + (rotationAccel / 2)) * Time.deltaTime ;
+                if (rotationAccel < 0)
+                    rotationAccel = 0;
+            }
+            else { 
+                rotationAccel += (rotationDecel + (-rotationAccel / 2)) * Time.deltaTime ;
+                if (rotationAccel > 0)
+                    rotationAccel = 0;
+            }
+        }
+        else {
+            targetRotation = psC.cool.localEulerAngles.x;
+            rotation = targetRotation;
+        }
+    }
 
-
-
+    void Finish() {
+        if (rotation >= 360) 
+            rotation -= 360;
+        else if (rotation < 0) 
+            rotation += 360;
+        psC.Move(direction * Time.deltaTime, rotation, facing, tilt, gravity * Time.deltaTime);
+    }
 
     public void ChangeGravity(Vector3 newGravityDirection , float newGravityStrength) {
         gravityDirection = newGravityDirection;

@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - GravityRoad
+  - GameMaster
   layers:
   - Default
   - TransparentFX
