@@ -44,7 +44,7 @@ public class AnimationController : MonoBehaviour {
         angleDifference += angle;
     }
 
-    float SuperLerp(float output1, float output2, float input1, float input2, float value) {
+    public static float SuperLerp(float output1, float output2, float input1, float input2, float value) {
         if (value <= input1)
             return output1;
         else if (value >= input2)

@@ -24,19 +24,19 @@ public class MovementController : MonoBehaviour {
     public Vector3 gravityDirection;     //angle from car
     float gravityStrength = 80;
     Vector3 maxGravitySpeed = new Vector3(100,100,100);
-    
-
-
-
+ 
     //bools
     bool gravityEnabled = true;
+    public bool onCollision;
+
 
     private void Start() {
-        gravityDirection = new Vector3(0, -0.5f, 1);
+        onCollision = false;
         psC = this.GetComponent<PhysicsController>();
         animationController = this.GetComponent<AnimationController>();
+        gravityDirection = new Vector3(0, -1f, 1);
+        
     }
-
 
     private void Update() {
         ApplyGravity();
@@ -48,7 +48,7 @@ public class MovementController : MonoBehaviour {
     }
 
     void ApplyGravity() {
-        if (gravityEnabled) {
+        if (gravityEnabled && !onCollision) {
             gravity += gravityDirection * gravityStrength * Time.deltaTime;
             if (Mathf.Abs(gravity.x) > maxGravitySpeed.x ) {
                 Mathf.Clamp(gravity.x, -maxGravitySpeed.x, maxGravitySpeed.x);
@@ -78,7 +78,7 @@ public class MovementController : MonoBehaviour {
             }
         }
         else {
-            targetRotation = psC.cool.localEulerAngles.x;
+            targetRotation = psC.hitObject.transform.localEulerAngles.x;
             rotation = targetRotation;
         }
     }
