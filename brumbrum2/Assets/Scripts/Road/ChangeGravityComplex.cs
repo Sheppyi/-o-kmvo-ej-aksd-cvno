@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChangeGravity : MonoBehaviour {
+public class ChangeGravityComplex : MonoBehaviour {
 
-   
-    private void OnCollisionEnter(Collision collision) {
+
+    private void OnCollisionStay(Collision collision) {
         ContactPoint contact = collision.contacts[collision.contacts.Length - 1];
         try {
             contact.otherCollider.GetComponent<MovementController>().ChangeGravity(contact.normal);
@@ -15,7 +15,4 @@ public class ChangeGravity : MonoBehaviour {
         }
     }
 
-   
-
-   
 }

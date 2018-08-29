@@ -6,10 +6,27 @@ public class AnimationController : MonoBehaviour {
 
     public GameObject rightRocket;
     public GameObject leftRocket;
+    public GameObject animationLayer;
+    PhysicsController psC;
+    MovementController movementController;
     float maxAngle = 45;
     float input;
     float angle;
     public float angleDifference;
+    //Everything rotation
+    public float animationRotation;
+    public float animationRotationTarget;
+    float rotationAccel;
+    float rotationDecel = 100f;
+    float angleDifferenceModifier = 15;
+    float maxRotationAngle = 45;
+    float maxRotationSmoothing = 720;
+
+
+    private void Start() {
+        psC = this.GetComponent<PhysicsController>();
+        movementController = GetComponent<MovementController>();
+    }
 
     private void Update() {
         //rightRocket
@@ -42,6 +59,61 @@ public class AnimationController : MonoBehaviour {
         }
         leftRocket.transform.localRotation = Quaternion.Euler(-angle, -90, 0);
         angleDifference += angle;
+    }
+
+
+    public float CalculateRotation(float currentRotation) {
+        
+        if (!psC.isGrounded) {
+            rotationAccel += angleDifference * angleDifferenceModifier * Time.deltaTime;
+            animationRotationTarget += rotationAccel * Time.deltaTime;
+            if (rotationAccel > 0) {
+                rotationAccel -= (rotationDecel + (rotationAccel / 2)) * Time.deltaTime;
+                if (rotationAccel < 0)
+                    rotationAccel = 0;
+            }
+            else {
+                rotationAccel += (rotationDecel + (-rotationAccel / 2)) * Time.deltaTime;
+                if (rotationAccel > 0)
+                    rotationAccel = 0;
+            }
+            if (animationRotationTarget > 180)
+                animationRotationTarget -= 360;
+            else if (animationRotationTarget < -180)
+                animationRotationTarget += 360;
+        }
+        else {
+            //PlayerInput
+            animationRotationTarget = angleDifference / 2;
+            if (animationRotationTarget >= 180)
+                animationRotationTarget -= 360;
+            else if (animationRotationTarget < -180)
+                animationRotationTarget += 360;
+            if (Mathf.Abs(animationRotationTarget) >= maxRotationAngle) {
+                if (animationRotationTarget > 0) {
+                    animationRotationTarget = maxRotationAngle;
+                }
+                else {
+                    animationRotationTarget = -maxRotationAngle;
+                }
+                rotationAccel = 0;
+            }
+        }
+
+        //Smooth Rotation
+        if (psC.isGrounded) {
+            animationRotation = animationRotationTarget - currentRotation;
+            if (Mathf.Abs(animationRotation) > maxRotationSmoothing * Time.deltaTime) {
+                if (animationRotation > 0) {
+                    animationRotation = (currentRotation + maxRotationSmoothing * Time.deltaTime);
+                }
+                else {
+                    animationRotation = (currentRotation + -maxRotationSmoothing * Time.deltaTime);
+                }
+                return animationRotation;
+            }
+        }
+        return animationRotationTarget;
     }
 
     public static float SuperLerp(float output1, float output2, float input1, float input2, float value) {

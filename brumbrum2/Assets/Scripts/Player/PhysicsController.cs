@@ -13,31 +13,33 @@ public class PhysicsController : MonoBehaviour {
     MovementController movementController;
     public GameObject hitObject;
     Rigidbody thisRigidbody;
+    Vector3 hitNormal;
 
     //gamevariables
-    float maxGroundedDistance = 8;
+    float maxGroundedDistance = 6;
     public bool isGrounded = false;
     
 
     //internal
-    Vector3 extents;    //extends of collider
-    Vector3 finalDirection;
-    float cornerCorrection = 0.1f;
-    float lengthModifier = 2;
-    float cornerCorrectionModifier = 5;
+    public float animationRotation;
 
     private void Start() {
         thisRigidbody = GetComponent<Rigidbody>();
         movementController = this.GetComponent<MovementController>();
-        extents = this.GetComponent<Collider>().bounds.extents;
     }
 
-    public void Move(Vector3 direction, float rotation,float facing, float tilt,Vector3 worldDirectionGravity) {
+    public void Move(Vector3 direction,Vector3 worldDirectionGravity, float facing, float animationRotation) {
         CheckIfGrounded();
-        finalDirection += -finalDirection + -transform.right * direction.x + transform.forward * direction.y + transform.up * direction.z + worldDirectionGravity;
+        if (isGrounded) {
+            transform.rotation = Quaternion.FromToRotation(Vector3.up, hitNormal);
+            transform.Rotate(0, facing, 0, Space.Self);
+        }
+        else {
 
-        thisRigidbody.AddForce(finalDirection);
-        transform.localRotation = Quaternion.Euler(rotation, facing, -tilt);
+        }
+        car.transform.localEulerAngles = new Vector3(animationRotation,0,0);
+        thisRigidbody.AddForce(worldDirectionGravity);
+        thisRigidbody.AddRelativeForce(new Vector3(-direction.x, direction.y, direction.z));
     }
 
     void CheckIfGrounded() {
@@ -45,6 +47,8 @@ public class PhysicsController : MonoBehaviour {
         if (Physics.Raycast(transform.position, movementController.gravityDirection ,out hit, maxGroundedDistance, collisionMask)) {
             isGrounded = true;
             hitObject = hit.transform.gameObject;
+            hitNormal = hit.normal;
+            
         }
         else {
             isGrounded = false;
