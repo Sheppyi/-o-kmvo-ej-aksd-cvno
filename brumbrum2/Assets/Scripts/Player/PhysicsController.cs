@@ -11,9 +11,11 @@ public class PhysicsController : MonoBehaviour {
     public LayerMask collisionMask;
     public GameObject car;
     MovementController movementController;
+    AnimationController animationController;
     public GameObject hitObject;
     Rigidbody thisRigidbody;
     Vector3 hitNormal;
+    Vector3 oldRotation;
 
     //gamevariables
     float maxGroundedDistance = 6;
@@ -26,12 +28,15 @@ public class PhysicsController : MonoBehaviour {
     private void Start() {
         thisRigidbody = GetComponent<Rigidbody>();
         movementController = this.GetComponent<MovementController>();
+        animationController = this.GetComponent<AnimationController>();
     }
 
     public void Move(Vector3 direction,Vector3 worldDirectionGravity, float facing, float animationRotation) {
         CheckIfGrounded();
         if (isGrounded) {
-            transform.rotation = Quaternion.FromToRotation(Vector3.up, hitNormal);
+            
+            transform.rotation = animationController.CalculateTilt(oldRotation, Quaternion.FromToRotation(Vector3.up, hitNormal).eulerAngles);
+            oldRotation = Quaternion.FromToRotation(Vector3.up, hitNormal).eulerAngles;
             transform.Rotate(0, facing, 0, Space.Self);
         }
         else {
@@ -55,6 +60,8 @@ public class PhysicsController : MonoBehaviour {
             hitObject = null;
         }
     }
+
+
 
 
 

@@ -5,6 +5,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(PhysicsController))]
 [RequireComponent(typeof(AnimationController))]
+[RequireComponent(typeof(CarStats))]
 public class MovementController : MonoBehaviour {
 
     public GameObject car;
@@ -17,7 +18,8 @@ public class MovementController : MonoBehaviour {
     
     
     public float facing = 0;
-    float accelModifier = 20000;
+    float defaultAccelModifier = 20000;
+    float accelModifier;
     float decelModifier = 20000;
     public float animationRotation;
     float facingModifier = 5;
@@ -33,6 +35,7 @@ public class MovementController : MonoBehaviour {
 
 
     private void Start() {
+        accelModifier = defaultAccelModifier;
         thisRigidybody = GetComponent<Rigidbody>();
         psC = this.GetComponent<PhysicsController>();
         animationController = this.GetComponent<AnimationController>();
@@ -42,11 +45,10 @@ public class MovementController : MonoBehaviour {
     private void Update() {
         isGrounded = psC.isGrounded;
         ApplyGravity();
-        animationRotation = animationController.CalculateRotation(animationRotation);
-        Movement();
         CalculateFacing();
+        Movement();
         Finish();
-        wasGrounded = isGrounded;
+        Misc();
     }
 
     void ApplyGravity() {
@@ -85,6 +87,7 @@ public class MovementController : MonoBehaviour {
     }
 
     void CalculateFacing() {
+        animationRotation = animationController.CalculateRotation(animationRotation);
         if (isGrounded) {
             facing += animationRotation * Time.deltaTime * facingModifier;
         }
@@ -94,10 +97,17 @@ public class MovementController : MonoBehaviour {
         psC.Move(direction * Time.deltaTime, gravity * Time.deltaTime, facing, animationRotation);
     }
 
+    void Misc() {
+        wasGrounded = isGrounded;
+    }
+
     public void ChangeGravity(Vector3 newGravityDirection , float newGravityStrength = defaultGravityStrength) {
         gravityDirection = newGravityDirection;
         gravityStrength = newGravityStrength;
         //Debug.Log("Changed gravity to " + gravityDirection);
+    }
 
+    public void ChangeSpeed(float speed) {
+        accelModifier = speed;
     }
 }

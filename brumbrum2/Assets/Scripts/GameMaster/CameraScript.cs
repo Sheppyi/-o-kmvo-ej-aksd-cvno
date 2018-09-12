@@ -12,6 +12,16 @@ public class CameraScript : MonoBehaviour {
 
 
     private void Update() {
+
+
+
+
+
+
+
+
+
+        
         transform.rotation = player.transform.rotation;
         transform.Rotate(0,-90,0,Space.Self);
         transform.position = player.transform.position;
@@ -21,7 +31,7 @@ public class CameraScript : MonoBehaviour {
         for (int i = 0; i < height; i++) {
             transform.position += transform.up;
         }
-
+        
     }
 
 
