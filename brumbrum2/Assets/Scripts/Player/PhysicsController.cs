@@ -9,13 +9,16 @@ public class PhysicsController : MonoBehaviour {
     //references
     
     public LayerMask collisionMask;
+    public LayerMask collisionMaskForRotation;
     public GameObject car;
     MovementController movementController;
     AnimationController animationController;
     public GameObject hitObject;
     Rigidbody thisRigidbody;
+    Vector3 pointToFixRotation;
     Vector3 hitNormal;
-    Vector3 oldRotation;
+    Vector3[] averageNormal = new Vector3[20];
+    int averageNormalArr;
 
     //gamevariables
     float maxGroundedDistance = 6;
@@ -32,28 +35,34 @@ public class PhysicsController : MonoBehaviour {
     }
 
     public void Move(Vector3 direction,Vector3 worldDirectionGravity, float facing, float animationRotation) {
-        CheckIfGrounded();
-        if (isGrounded) {
-            
-            transform.rotation = animationController.CalculateTilt(oldRotation, Quaternion.FromToRotation(Vector3.up, hitNormal).eulerAngles);
-            oldRotation = Quaternion.FromToRotation(Vector3.up, hitNormal).eulerAngles;
-            transform.Rotate(0, facing, 0, Space.Self);
-        }
-        else {
 
+        if (isGrounded) {
+            pointToFixRotation = transform.position + transform.forward;
+            transform.rotation = Quaternion.FromToRotation(Vector3.up, new Vector3(hitNormal.x, hitNormal.y, hitNormal.z));
+            
+            transform.Rotate(0, facing, 0, Space.Self);
         }
         car.transform.localEulerAngles = new Vector3(animationRotation,0,0);
         thisRigidbody.AddForce(worldDirectionGravity);
         thisRigidbody.AddRelativeForce(new Vector3(-direction.x, direction.y, direction.z));
     }
 
-    void CheckIfGrounded() {
+    void FixedUpdate() {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, movementController.gravityDirection ,out hit, maxGroundedDistance, collisionMask)) {
             isGrounded = true;
             hitObject = hit.transform.gameObject;
-            hitNormal = hit.normal;
-            
+            if (Physics.Raycast(transform.position, movementController.gravityDirection, out hit, maxGroundedDistance, collisionMaskForRotation)) {
+                averageNormal[averageNormalArr] = hit.normal;
+                if (++averageNormalArr >= averageNormal.Length) {
+                    averageNormalArr = 0;
+                }
+                hitNormal = new Vector3();
+                for (int i = 0; i < averageNormal.Length; i++) {
+                    hitNormal += averageNormal[i];
+                }
+                hitNormal /= averageNormal.Length;
+            }
         }
         else {
             isGrounded = false;

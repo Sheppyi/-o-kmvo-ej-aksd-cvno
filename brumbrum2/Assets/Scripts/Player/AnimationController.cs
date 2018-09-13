@@ -123,59 +123,6 @@ public class AnimationController : MonoBehaviour {
         return animationRotationTarget;
     }
 
-    public Quaternion CalculateTilt(Vector3 initialTilt, Vector3 finalTilt) {
-        /*
-        if (finalTilt == currentRotation) {
-            if (inTiltAnimation) {
-            }
-            inTiltAnimation = false;
-            currentTime = 0;
-            lerpPercentage = 0;
-        }
-        else if(inTiltAnimation) {
-            if (finalTilt != toTilt) {
-                Vector3 targetRotation = Vector3.Lerp(fromTilt, toTilt, lerpPercentage);
-                fromTilt += finalTilt - toTilt;
-                toTilt = finalTilt;
-                lerpPercentage = SuperLerp(0, 1, 0, Vector3.Distance(fromTilt,targetRotation) + Vector3.Distance(targetRotation,toTilt), Vector3.Distance(fromTilt, targetRotation));
-            }
-            currentTime += Time.deltaTime;
-            lerpPercentage += SuperLerp(0,1,0,timeItTakes,currentTime);
-            currentRotation = Vector3.Lerp(fromTilt, toTilt, lerpPercentage);
-        }
-        else {
-            inTiltAnimation = true;
-            fromTilt = initialTilt;
-            toTilt = finalTilt;
-            if (fromTilt.z >=180) {
-                fromTilt.z -= 360;
-            }
-            if (fromTilt.x >= 180) {
-                fromTilt.x -= 360;
-            }
-            if (fromTilt.y >= 180) {
-                fromTilt.y -= 360;
-            }
-            if (toTilt.z >= 180) {
-                toTilt.z -= 360;
-            }
-            if (toTilt.x >= 180) {
-                toTilt.x -= 360;
-            }
-            if (toTilt.y >= 180) {
-                toTilt.y -= 360;
-            }
-            currentTime = 0;
-            lerpPercentage = 0;
-            currentRotation = Vector3.Lerp(fromTilt,toTilt,lerpPercentage);
-        }
-        
-        oldTilt = finalTilt;
-        */
-        return Quaternion.Euler(finalTilt);
-
-        return Quaternion.Euler(currentRotation);
-    }
 
     public static float SuperLerp(float output1, float output2, float input1, float input2, float value) {
         if (value <= input1)

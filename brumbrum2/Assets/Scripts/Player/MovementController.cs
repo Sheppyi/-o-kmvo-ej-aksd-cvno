@@ -18,15 +18,15 @@ public class MovementController : MonoBehaviour {
     
     
     public float facing = 0;
-    float defaultAccelModifier = 20000;
+    float defaultAccelModifier = 30000;
     float accelModifier;
     float decelModifier = 20000;
     public float animationRotation;
     float facingModifier = 5;
 
     public Vector3 gravityDirection;     //angle from car
-    float gravityStrength = 5000;
-    const float defaultGravityStrength = 5000;
+    float gravityStrength = 10000;
+    const float defaultGravityStrength = 10000;
 
     //bools
     bool gravityEnabled = true;
